@@ -96,3 +96,31 @@ myEmitter.off('eventOne', c1);
 console.log(myEmitter.listenerCount('eventOne'));
 myEmitter.off('eventOne', c2);
 console.log(myEmitter.listenerCount('eventOne'));
+
+
+class WithTime extends EventEmitter {
+    async execute(asyncFunc, ...args) {
+        this.emit('begin');
+        const result = await asyncFunc(...args);
+        this.emit('end');
+        return result;
+    }
+}
+
+const withTime = new WithTime();
+
+withTime.on('begin', () => console.log('About to execute'));
+withTime.on('end', () => console.log('Done with execute'));
+
+console.log(withTime.rawListeners("end"));
+
+withTime.execute(getPost, 1)
+    .then((post) => {
+        console.log('post is', post);
+    });
+
+async function getPost(id) {
+    const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
+    const post = await response.json();
+    return post;
+}
